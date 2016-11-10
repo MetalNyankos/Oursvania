@@ -5,14 +5,15 @@ import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.util.FlxTimer;
+import sprites.Sword;
 
 /**
  * ...
- * @author ...
+ * @author Santiago Perez
  */
 class Player extends FlxSprite
 {	
-	private var sword:FlxSprite;
+	public var sword:Sword;
 	private var swordDelay:FlxTimer;
 	private var jumping:Bool = false;
 	private var falling:Bool = true;
@@ -24,9 +25,7 @@ class Player extends FlxSprite
 		
 		makeGraphic(32, 32);
 		
-		sword = new FlxSprite(0, 0);
-		sword.makeGraphic(32, 10);
-		//sword.acceleration.y = 1000;
+		sword = new Sword(0, 0);
 		FlxG.state.add(sword);
 		sword.kill();
 		
@@ -43,12 +42,6 @@ class Player extends FlxSprite
 		
 		sword.x = x + width;
 		sword.y = y;
-		
-		if (y > FlxG.height)
-		{
-			y = 0;
-			x = 0;
-		}
 		
 		super.update(elapsed);
 	}
@@ -129,5 +122,10 @@ class Player extends FlxSprite
 	private function KillSword(swordDelay:FlxTimer):Void
 	{
 		sword.kill();
+	}
+	
+	public function Damage():Void
+	{
+		trace("ouch");
 	}
 }

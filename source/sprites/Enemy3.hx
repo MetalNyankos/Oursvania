@@ -22,6 +22,7 @@ class Enemy3 extends FlxSprite
 		super(X, Y);
 		makeGraphic(16, 32, 0xFF00FF00);
 		projectiles = enemyProjectiles;
+		acceleration.y = Reg.gravity;
 	}
 	
 	override public function update(elapsed:Float):Void 

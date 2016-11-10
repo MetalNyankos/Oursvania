@@ -26,6 +26,7 @@ import sprites.Projectile;
 		projectiles = enemyProjectiles;
 		firingTimer = new FlxTimer();
 		firingTimer.start(2, Fire, 0);
+		acceleration.y = Reg.gravity;
 	}	
 	
 	public function Fire(Timer:FlxTimer):Void

@@ -26,6 +26,7 @@ class Enemy4 extends FlxSprite
 		shield = new FlxSprite(this.x - 10, this.y);
 		shield.makeGraphic(5, 32, 0xFF00FFFF);
 		FlxG.state.add(shield);
+		acceleration.y = Reg.gravity;
 	}
 	
 	override public function update(elapsed:Float):Void 
