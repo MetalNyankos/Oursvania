@@ -16,6 +16,8 @@ class Enemy3 extends FlxSprite
 	public var projectiles:FlxTypedGroup<Projectile>;
 	private var patterTimer:Int = 0;
 	private var stepsCounter:Int = 0;
+	private var movementSpeed:Int = 10;
+	private var projectileSpeed:Int = -100;
 	
 	public function new(?X:Float=0, ?Y:Float=0, enemyProjectiles:FlxTypedGroup<Projectile>) 
 	{
@@ -35,16 +37,18 @@ class Enemy3 extends FlxSprite
 	{
 		if (patterTimer == 60)
 		{
-			this.x -= 10;
+			this.x -= movementSpeed;
 			patterTimer = 0;
 			stepsCounter++;
 		}
 		
 		if (stepsCounter == 3)
 		{
-			var projectile = new Projectile(this.x + 8, this.y + 8, -100);
+			var projectile = new Projectile(this.x + 8, this.y + 8, projectileSpeed);
 			projectiles.add(projectile);
 			stepsCounter = 0;
+			movementSpeed *= -1;
+			projectileSpeed *= -1;
 		}
 		patterTimer++;
 	}

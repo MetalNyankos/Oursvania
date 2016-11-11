@@ -18,6 +18,7 @@ import sprites.Enemy4;
 import sprites.Boss;
 import sprites.Player;
 import sprites.Projectile;
+import sprites.Spikes;
 
 class PlayState extends FlxState
 {
@@ -27,6 +28,7 @@ class PlayState extends FlxState
 	public var enemiesType2:FlxTypedGroup<Enemy2>;
 	public var enemiesType3:FlxTypedGroup<Enemy3>;
 	public var enemiesType4:FlxTypedGroup<Enemy4>;
+	public var spikes:FlxTypedGroup<Spikes>;
 	public var screenPositionX:Float = 0;
 	private var player:Player;
 	public var boss:Boss;
@@ -42,6 +44,9 @@ class PlayState extends FlxState
 		var loader:FlxOgmoLoader = new FlxOgmoLoader(AssetPaths.LevelJuego3__oel);
 		mapTiles = loader.loadTilemap(AssetPaths.Piso1__png , 16, 16, "Pisos");
 		add(mapTiles);
+		
+		spikes = new FlxTypedGroup<Spikes>();
+		add(spikes);
 		
 		enemyProjectiles = new FlxTypedGroup<Projectile>();		
 		add(enemyProjectiles);
@@ -101,13 +106,14 @@ class PlayState extends FlxState
 		FlxG.overlap(player, enemiesType2, null, CollsionHandler);
 		FlxG.overlap(player, enemiesType3, null, CollsionHandler);
 		FlxG.overlap(player, enemiesType4, null, CollsionHandler);
-		
+		FlxG.overlap(player, enemiesType4, null, CollsionHandler);
+		FlxG.overlap(player, spikes, null, CollsionHandler);
+		FlxG.overlap(player, enemyProjectiles, null, CollsionHandler);
+
 		if (player.sword.alive)
 		{
 			SwordCollisions();
 		}
-		
-		FlxG.overlap(player, enemyProjectiles, null, CollsionHandler);
 	}
 	
 	private function SwordCollisions():Void
@@ -163,10 +169,10 @@ class PlayState extends FlxState
 	{
 		var sprite1ClassName:String = Type.getClassName(Type.getClass(Sprite1));
 		var sprite2ClassName:String = Type.getClassName(Type.getClass(Sprite2));
-		trace(sprite1ClassName);
 		if (sprite1ClassName == "sprites.Player" &&
 		(sprite2ClassName == "sprites.Enemy1" || sprite2ClassName == "sprites.Enemy2" ||
-		sprite2ClassName == "sprites.Enemy3" || sprite2ClassName == "sprites.Enemy4"))
+		sprite2ClassName == "sprites.Enemy3" || sprite2ClassName == "sprites.Enemy4" ||
+		sprite2ClassName == "sprites.Spikes"))
 		{
 			player.Damage();
 			return true;
@@ -248,6 +254,14 @@ class PlayState extends FlxState
 			if (InCameraBounds(enemy))
 			{
 				enemy.revive();
+			}
+		}
+		
+		for (spike in spikes)
+		{
+			if (InCameraBounds(spike))
+			{
+				spike.revive();
 			}
 		}
 		
@@ -346,6 +360,17 @@ class PlayState extends FlxState
 			boss = new Boss(X, Y, enemyProjectiles);
 			boss.kill();
 			add(boss);
+		}
+		
+		if (entityName == "Spikes")
+		{
+			var X:Float = Std.parseFloat(entityData.get("x"));
+			var Y:Float = Std.parseFloat(entityData.get("y"));
+			
+			var spike:Spikes;
+			spike = new Spikes(X, Y);
+			spike.kill();
+			spikes.add(spike);
 		}
 	}
 }
