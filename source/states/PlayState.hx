@@ -38,28 +38,7 @@ class PlayState extends FlxState
 	override public function create():Void
 	{
 		super.create();
-		
-		//enemyProjectiles = new FlxTypedGroup<Projectile>();		
-		//add(enemyProjectiles);
-		//
-		//platform = new FlxSprite(0, 230);
-		//platform.makeGraphic(100, 16);
-		//platform.immovable = true;
-		//
-		//player = new Player(0, 0);
-		//
-		//enemy1 = new Enemy1(200, 10);
-		//enemy2 = new Enemy2(100, 70, enemyProjectiles);
-		//enemy3 = new Enemy3(200, 120, enemyProjectiles);
-		//enemy4 = new Enemy4(200, 200, enemyProjectiles);
-		//
-		//add(platform);
-		//add(player);
-		//add(enemy1);
-		//add(enemy2);
-		//add(enemy3);
-		//add(enemy4);
-		
+			
 		var loader:FlxOgmoLoader = new FlxOgmoLoader(AssetPaths.LevelJuego3__oel);
 		mapTiles = loader.loadTilemap(AssetPaths.Piso1__png , 16, 16, "Pisos");
 		add(mapTiles);
