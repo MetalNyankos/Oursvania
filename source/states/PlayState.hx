@@ -19,16 +19,19 @@ import sprites.Boss;
 import sprites.Player;
 import sprites.Projectile;
 import sprites.Spikes;
+import sprites.Barrier;
 
 class PlayState extends FlxState
 {
 	public var enemyProjectiles:FlxTypedGroup<Projectile>;
+	public var playerProjectiles:FlxTypedGroup<Projectile>;
 	private var mapTiles:FlxTilemap;
 	public var enemiesType1:FlxTypedGroup<Enemy1>;
 	public var enemiesType2:FlxTypedGroup<Enemy2>;
 	public var enemiesType3:FlxTypedGroup<Enemy3>;
 	public var enemiesType4:FlxTypedGroup<Enemy4>;
 	public var spikes:FlxTypedGroup<Spikes>;
+	public var barriers:FlxTypedGroup<Barrier>;
 	public var screenPositionX:Float = 0;
 	private var player:Player;
 	public var boss:Boss;
@@ -45,8 +48,14 @@ class PlayState extends FlxState
 		mapTiles = loader.loadTilemap(AssetPaths.Piso1__png , 16, 16, "Pisos");
 		add(mapTiles);
 		
+		barriers = new FlxTypedGroup<Barrier>();
+		add(barriers);
+		
 		spikes = new FlxTypedGroup<Spikes>();
 		add(spikes);
+		
+		playerProjectiles = new FlxTypedGroup<Projectile>();		
+		add(playerProjectiles);
 		
 		enemyProjectiles = new FlxTypedGroup<Projectile>();		
 		add(enemyProjectiles);
@@ -85,29 +94,47 @@ class PlayState extends FlxState
 		FlxG.collide(mapTiles, enemiesType3);
 		FlxG.collide(mapTiles, enemiesType4);
 		FlxG.collide(mapTiles, enemyProjectiles);
+		FlxG.collide(mapTiles, playerProjectiles);
 		FlxG.collide(mapTiles, boss);
 		ActivateEnemies();
 		Collisions();
-		
+		ProjectilesHandler();
+	}
+	
+	private function ProjectilesHandler():Void
+	{
 		for (projectile in enemyProjectiles)
 		{
-			if (projectile.isTouching(FlxObject.ANY))
+			if (projectile.isTouching(FlxObject.ANY) || !InCameraBounds(projectile))
 			{
 				enemyProjectiles.remove(projectile);
 				projectile.destroy();
+			}
+		}
+		
+		for (projectile in playerProjectiles)
+		{
+			if (projectile.isTouching(FlxObject.ANY) || !InCameraBounds(projectile))
+			{
+				playerProjectiles.remove(projectile);
+				projectile.destroy();
+				
 			}
 		}
 	}
 	
 	private function Collisions():Void
 	{	
-
 		FlxG.overlap(player, enemiesType1, null, CollsionHandler);
 		FlxG.overlap(player, enemiesType2, null, CollsionHandler);
 		FlxG.overlap(player, enemiesType3, null, CollsionHandler);
 		FlxG.overlap(player, enemiesType4, null, CollsionHandler);
-		FlxG.overlap(player, enemiesType4, null, CollsionHandler);
+		FlxG.overlap(playerProjectiles, enemiesType1, null, CollsionHandler);
+		FlxG.overlap(playerProjectiles, enemiesType2, null, CollsionHandler);
+		FlxG.overlap(playerProjectiles, enemiesType3, null, CollsionHandler);
+		FlxG.overlap(playerProjectiles, enemiesType4, null, CollsionHandler);
 		FlxG.overlap(player, spikes, null, CollsionHandler);
+		FlxG.overlap(player, barriers, null, CollsionHandler);
 		FlxG.overlap(player, enemyProjectiles, null, CollsionHandler);
 
 		if (player.sword.alive)
@@ -150,8 +177,11 @@ class PlayState extends FlxState
 		{
 			if (FlxG.pixelPerfectOverlap(player.sword, enemy4))
 			{
-				enemiesType4.remove(enemy4);
-				enemy4.kill();
+				if (!enemy4.shield)
+				{
+					enemiesType4.remove(enemy4);
+					enemy4.kill();
+				}
 			}
 		}
 		
@@ -172,7 +202,7 @@ class PlayState extends FlxState
 		if (sprite1ClassName == "sprites.Player" &&
 		(sprite2ClassName == "sprites.Enemy1" || sprite2ClassName == "sprites.Enemy2" ||
 		sprite2ClassName == "sprites.Enemy3" || sprite2ClassName == "sprites.Enemy4" ||
-		sprite2ClassName == "sprites.Spikes"))
+		sprite2ClassName == "sprites.Spikes" || sprite2ClassName == "sprites.Barrier"))
 		{
 			player.Damage();
 			return true;
@@ -188,32 +218,56 @@ class PlayState extends FlxState
 			return true;
 		}
 		
-		if (sprite1ClassName == "sprites.Sword" && sprite2ClassName == "sprites.Enemy1"){
+		if ((sprite1ClassName == "sprites.Sword" || sprite1ClassName == "sprites.Projectile") && sprite2ClassName == "sprites.Enemy1"){
 			var enemy: Dynamic = cast(Sprite2, Enemy1);
+			
+			if (sprite1ClassName == "sprites.Projectile")
+			{
+				var projectile: Dynamic = cast(Sprite1, Projectile);
+				playerProjectiles.remove(projectile);
+			}
 			
 			enemiesType1.remove(enemy);
 			enemy.kill();
 			return true;
 		}
 		
-		if (sprite1ClassName == "sprites.Sword" && sprite2ClassName == "sprites.Enemy2"){
+		if ((sprite1ClassName == "sprites.Sword" || sprite1ClassName == "sprites.Projectile") && sprite2ClassName == "sprites.Enemy2"){
 			var enemy: Dynamic = cast(Sprite2, Enemy2);
+			
+			if (sprite1ClassName == "sprites.Projectile")
+			{
+				var projectile: Dynamic = cast(Sprite1, Projectile);
+				playerProjectiles.remove(projectile);
+			}
 			
 			enemiesType2.remove(enemy);
 			enemy.kill();
 			return true;
 		}
 		
-		if (sprite1ClassName == "sprites.Sword" && sprite2ClassName == "sprites.Enemy3"){
+		if ((sprite1ClassName == "sprites.Sword" || sprite1ClassName == "sprites.Projectile") && sprite2ClassName == "sprites.Enemy3"){
 			var enemy: Dynamic = cast(Sprite2, Enemy3);
+			
+			if (sprite1ClassName == "sprites.Projectile")
+			{
+				var projectile: Dynamic = cast(Sprite1, Projectile);
+				playerProjectiles.remove(projectile);
+			}
 			
 			enemiesType3.remove(enemy);
 			enemy.kill();
 			return true;
 		}
 
-		if (sprite1ClassName == "sprites.Sword" && sprite2ClassName == "sprites.Enemy4"){
+		if ((sprite1ClassName == "sprites.Sword" || sprite1ClassName == "sprites.Projectile") && sprite2ClassName == "sprites.Enemy4"){
 			var enemy: Dynamic = cast(Sprite2, Enemy4);
+			
+			if (sprite1ClassName == "sprites.Projectile")
+			{
+				var projectile: Dynamic = cast(Sprite1, Projectile);
+				playerProjectiles.remove(projectile);
+			}
 			
 			enemiesType4.remove(enemy);
 			enemy.kill();
@@ -301,10 +355,7 @@ class PlayState extends FlxState
 			var X:Float = Std.parseFloat(entityData.get("x"));
 			var Y:Float = Std.parseFloat(entityData.get("y"));
 			
-			//playerBullets = new FlxTypedGroup<Bullet>();		
-			//add(playerBullets);
-			
-			player = new Player(X, Y);
+			player = new Player(X, Y, playerProjectiles);
 			add(player);
 		}
 
@@ -371,6 +422,17 @@ class PlayState extends FlxState
 			spike = new Spikes(X, Y);
 			spike.kill();
 			spikes.add(spike);
+		}
+		
+		if (entityName == "Barrier")
+		{
+			var X:Float = Std.parseFloat(entityData.get("x"));
+			var Y:Float = Std.parseFloat(entityData.get("y"));
+			
+			var barrier:Barrier;
+			barrier = new Barrier(X, Y);
+			barrier.kill();
+			barriers.add(barrier);
 		}
 	}
 }
